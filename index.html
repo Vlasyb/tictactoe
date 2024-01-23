@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicTacToe</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+    turnLog=""
+    winState=false
+    saveLog=false
+    record = 0
+    steps = 0
+    let gameArr =[]
+    for(var i=0;i<9;i++){
+        gameArr[i]=-i-1
+        }
+    gameSaveArr=[...gameArr]
+    
+    let playerTurn = "O"
+
+    function newGame(){
+        turnLog=""
+        steps=0
+        console.log("New Game")
+        winState=false
+        playerWinObj = document.getElementById("playerWin")
+        playerWinObj.innerText= ""
+        //player O is 0 , player X is 1 , empty is -1
+        for(var i=0;i<9;i++){
+        gameArr[i]=-i-1
+        }
+        tdArr=document.querySelectorAll("td")
+
+        tdArr.forEach(x => {
+            x.innerText="somecontentlP"
+            x.style.opacity=0
+        })
+        playerTurn = "O"
+        h2Obj = document.getElementById("playerTurn")
+        h2Obj.style.backgroundColor = playerTurn=='O' ? "#13CEFB" : "red"
+        h2Obj.innerText = "Player Turn: "+playerTurn
+    }
+
+
+
+    function saveGame(){
+        savedTurnLog = turnLog
+        saveLog=true
+        savedWinState=winState
+        savedPlayerTurn=playerTurn
+        gameSaveArr=[...gameArr]
+        console.log(gameSaveArr)
+    }
+
+    function loadGame(){
+        if(saveLog=false){
+            return
+        }
+        turnLog=savedTurnLog
+        winState=savedWinState
+        playerTurn=savedPlayerTurn
+        steps=0
+        console.log(gameSaveArr)
+        
+        for(let i=0;i<gameArr.length;i++){
+            tdObj = document.getElementById(i+1)
+            if (gameArr[i]==0 || gameArr[i]==1){
+                tdObj.innerText="somecontentlP"
+                tdObj.style.opacity=0
+                imgObj = document.getElementById('img'+i+1)
+                if (imgObj!=null){
+                    tdObj.removeChild('img'+i+1)
+                }
+            }
+        }
+
+        for (let i =0;i<gameSaveArr.length;i++){
+            tdObj = document.getElementById(i+1)
+            if (gameSaveArr[i]==0 || gameSaveArr[i]==1){
+                steps++
+                const image = document.createElement('img')
+                image.setAttribute('id','img'+(i+1))
+                image.src = gameSaveArr[i]==0 ? 'o.png' : 'x.png'
+                tdObj.innerText=""
+                tdObj.style.opacity=1
+                tdObj.appendChild(image)
+            }
+        }
+        playerWinObj= document.getElementById('playerWin')
+        playerWinObj.innerText=""
+        h2Obj = document.getElementById("playerTurn")
+        h2Obj.style.backgroundColor = playerTurn=='O' ? "#13CEFB" : "red"
+        h2Obj.innerText = "Player Turn: "+playerTurn
+        gameArr=[...gameSaveArr]
+    }
+
+
+
+    function checkRows(){
+        rowsWin=true
+        for(var y=0;y<3;y++){
+            for (var x=0;x<3;x++){
+                if(gameArr[0 +y*3]!=gameArr[x+y*3]){
+                    rowsWin =false
+                }
+            }
+            if (rowsWin){
+                return true
+            }
+            if (y==2){
+                break
+            }
+            rowsWin =true
+        }
+        return rowsWin
+    }
+    function checkCols(){ //0 3 6, 1 4 7, 2,5,8
+        colsWin=true
+        for(var y=0;y<3;y++){
+            for (var x=0;x<3;x++){
+                if(gameArr[y]!=gameArr[y+x*3]){
+                    colsWin =false
+                }
+            }
+            if (colsWin){
+                return true
+            }
+            if (y==2){
+                break
+            }
+            colsWin =true
+        }
+        return colsWin
+    }
+
+    function checkDiags(){//0,4,8 | 2, 4 ,6
+        diagWin=true
+        for (var i=0;i<3;i++){
+                if(gameArr[0]!=gameArr[i*4]){
+                    diagWin=false
+                }
+            }
+        if (diagWin){
+            return true
+        }
+        diagWin=true
+        for (var i=0;i<3;i++){
+            if(gameArr[2]!=gameArr[2+i*2]){
+                diagWin=false
+            }
+        }
+        
+        return diagWin
+    }
+
+    function showRecord(){
+        if (record==0){
+            alert("No games played yet")
+        }
+        else{
+            alert("Fastest game was " + record + " moves")
+        }
+    }
+    function gameWin(){
+        if(checkRows() || checkCols() || checkDiags()){
+            winState=true
+            return true
+        }
+    }
+
+    function tdClicked(id){
+        console.log("Clicked " +id)
+        if(winState){
+            console.log("game over")
+            return
+        }
+        tdObj = document.getElementById(id)
+        // somecontentlP is the default text
+        if (tdObj.innerText!="somecontentlP"){
+            console.log("Cell Occupied")
+            return
+        }
+        steps++
+        turnLog+=(id)
+        gameArr[id-1]= playerTurn=='O' ? 0 : 1
+        const image = document.createElement('img')
+        image.setAttribute('id','img'+id)
+        image.src = playerTurn=="O" ? 'o.png' : 'x.png'
+        tdObj.innerText=""
+        tdObj.style.opacity=1
+        tdObj.appendChild(image)
+        if (gameWin()){
+            console.log("game won")
+            record= record== 0 ? steps : Math.min(record,steps)
+            console.log("Record " + record)
+            playerWinObj = document.getElementById("playerWin")
+            playerWinObj.innerText= "Player " +playerTurn + " Won"
+            return
+        }
+
+        h2Obj = document.getElementById("playerTurn")
+        playerTurn = playerTurn=='O' ? 'X' : 'O'
+        h2Obj.style.backgroundColor = playerTurn=='O' ? "#13CEFB" : "red"
+        h2Obj.innerText = "Player Turn: "+playerTurn
+    }
+
+    function removeLastStep(){
+        if (turnLog.length==0){
+            console.log("no steps to take back")
+            return 
+        }
+        winState=false
+        playerWinObj = document.getElementById("playerWin")
+        playerWinObj.innerText= ""
+        steps--
+        idToRemove=turnLog[turnLog.length-1]
+        turnLog= turnLog.substring(0,turnLog.length-1)
+        gameArr[idToRemove-1]= -idToRemove==0 ? -1 : -idToRemove
+
+        tdObj=document.getElementById(idToRemove)
+        console.log(idToRemove)
+        playerTurnObj=document.getElementById('playerTurn')
+        playerTurn = playerTurn=='O' ? 'X' : 'O'
+        h2Obj.style.backgroundColor = playerTurn=='O' ? "#13CEFB" : "red"
+        h2Obj.innerText = "Player Turn: "+playerTurn
+
+        imgObj=document.getElementById('img'+idToRemove)
+        imgObj.parentNode.removeChild(imgObj)
+        // tdObj.removeChild(document.getElementById('img'+idToRemove))
+        tdObj.style.opacity=0
+        tdObj.innerText="somecontentlP"
+    }
+
+
+    </script>
+</head>
+<body>
+    <h1>TicTacToe</h1><br>
+    <div id="btnDiv">
+        <input type="button" value="New Game" onclick="newGame()">
+        <input type="button" value="Remove Last Step" onclick="removeLastStep()">
+        <input type="button" value="Show Record" onclick="showRecord()">
+        <input type="button" value="Save Game" onclick="saveGame()">
+        <input type="button" value="Load Game" onclick="loadGame()">
+    </div><br><br>
+    <h2 id="playerTurn">Player Turn: O</h2><br>
+    <table >
+        <tr>
+        <td onclick="tdClicked(id)" id="1">somecontentlP</td>
+        <td onclick="tdClicked(id)" id="2">somecontentlP</td>
+        <td onclick="tdClicked(id)" id="3">somecontentlP</td>    
+        </tr>
+        <tr>
+        <td onclick="tdClicked(id)" id="4">somecontentlP</td>
+        <td onclick="tdClicked(id)" id="5">somecontentlP</td>
+        <td onclick="tdClicked(id)" id="6">somecontentlP</td>    
+        </tr>
+        <tr>
+        <td onclick="tdClicked(id)" id="7">somecontentlP</td>
+        <td onclick="tdClicked(id)" id="8">somecontentlP</td>
+        <td onclick="tdClicked(id)" id="9">somecontentlP</td>
+        </tr>
+    </table><br>
+    <h1 id="playerWin"></h1>
+    
+</body>
+</html>
